@@ -96,6 +96,12 @@
                     <minimizeJar>true</minimizeJar>
                     <filters>
                         <filter>
+                            <artifact>org.slf4j:*</artifact>
+                            <includes>
+                                <include>**</include>
+                            </includes>
+                        </filter>
+                        <filter>
                             <artifact>*:*</artifact>
                             <excludes>
                                 <exclude>**/module-info.class</exclude>
@@ -196,6 +202,12 @@
             <artifactId>folia-api</artifactId>
             <version>1.20.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
