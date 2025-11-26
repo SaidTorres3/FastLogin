@@ -26,7 +26,6 @@
 package com.github.games647.fastlogin.core.shared;
 
 import com.github.games647.craftapi.resolver.MojangResolver;
-import com.github.games647.craftapi.resolver.Options;
 import com.github.games647.craftapi.resolver.http.RotatingProxySelector;
 import com.github.games647.fastlogin.core.CommonUtil;
 import com.github.games647.fastlogin.core.ProxyAgnosticMojangResolver;
@@ -120,18 +119,12 @@ public class FastLoginCore<P extends C, C, T extends PlatformPlugin<C>> {
             return;
         }
 
-        Options resolverOptions = new Options();
-        resolverOptions.setMaxNameRequests(config.getInt("mojang-request-limit", 600));
-
         Set<Proxy> proxies = config.getStringList("proxies")
                 .stream()
                 .map(proxy -> proxy.split(":"))
                 .map(proxy -> new InetSocketAddress(proxy[0], Integer.parseInt(proxy[1])))
                 .map(sa -> new Proxy(Type.HTTP, sa))
                 .collect(toSet());
-        if (!proxies.isEmpty()) {
-            resolverOptions.setProxySelector(new RotatingProxySelector(proxies));
-        }
 
 //        TODO: Not available currently in craftapi?
 //        Collection<InetAddress> addresses = new HashSet<>();
@@ -146,7 +139,12 @@ public class FastLoginCore<P extends C, C, T extends PlatformPlugin<C>> {
 
         // Initialize the resolver based on the config parameter
         this.resolver = this.config.getBoolean("useProxyAgnosticResolver", false)
-            ? new ProxyAgnosticMojangResolver(resolverOptions) : new MojangResolver(resolverOptions);
+            ? new ProxyAgnosticMojangResolver() : new MojangResolver();
+
+        this.resolver.setMaxNameRequests(config.getInt("mojang-request-limit", 600));
+        if (!proxies.isEmpty()) {
+            this.resolver.setProxySelector(new RotatingProxySelector(proxies));
+        }
 
         antiBot = createAntiBotService(config.getSection("anti-bot"));
     }
